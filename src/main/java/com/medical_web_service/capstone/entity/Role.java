@@ -1,7 +1,7 @@
 package com.medical_web_service.capstone.entity;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+
 
 @Getter
 public enum Role {

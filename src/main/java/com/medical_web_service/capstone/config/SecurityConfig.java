@@ -31,8 +31,11 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰 저장소 설정
                 ) // CSRF 보호 비활성화
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/oauth2/**", "/css/**", "/js/**").permitAll() // 인증이 필요 없는 URL들
-                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
+                        .requestMatchers("/main","/login", "/oauth2/**", "/css/**", "/js/**").permitAll() // 인증이 필요 없는 URL들
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN만 접근 가능
+                        .requestMatchers("/answer/**").hasRole("DOCTOR") // DOCTOR만 접근 가능
+                        .requestMatchers("/api/**").hasAnyRole("USER", "DOCTOR", "ADMIN") // USER, DOCTOR, ADMIN 접근 가능
+                        .anyRequest().authenticated() // 나머지 요청은 인증 필요 // 그 외 모든 요청은 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
