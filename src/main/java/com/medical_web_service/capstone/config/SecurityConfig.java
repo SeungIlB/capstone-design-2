@@ -1,63 +1,80 @@
 package com.medical_web_service.capstone.config;
 
-import com.medical_web_service.capstone.service.CustomOAuth2UserService;
+import com.medical_web_service.capstone.config.handler.JwtAccessDeniedHandler;
+import com.medical_web_service.capstone.config.handler.JwtAuthenticationEntryPoint;
+import com.medical_web_service.capstone.config.jwt.JwtAuthenticationFilter;
+import com.medical_web_service.capstone.config.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰 저장소 설정
-                ) // CSRF 보호 비활성화
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/main","/login", "/oauth2/**", "/css/**", "/js/**").permitAll() // 인증이 필요 없는 URL들
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // ADMIN만 접근 가능
-                        .requestMatchers("/answer/**").hasRole("DOCTOR") // DOCTOR만 접근 가능
-                        .requestMatchers("/api/**").hasAnyRole("USER", "DOCTOR", "ADMIN") // USER, DOCTOR, ADMIN 접근 가능
-                        .anyRequest().authenticated() // 나머지 요청은 인증 필요 // 그 외 모든 요청은 인증 필요
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // 사용자 정보 처리를 위한 서비스 설정
-                        )
-                );
-
-        return http.build();
+    public BCryptPasswordEncoder encoder() {
+        // 비밀번호를 DB에 저장하기 전 사용할 암호화
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public WebClient webClient(ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
-        ServletOAuth2AuthorizedClientExchangeFilterFunction oauth2Client =
-                new ServletOAuth2AuthorizedClientExchangeFilterFunction(clientRegistrationRepository, authorizedClientRepository);
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        // ACL(Access Control List, 접근 제어 목록)의 예외 URL 설정
+        return (web) -> web
+                .ignoring()
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
 
-        return WebClient.builder()
-                .apply(oauth2Client.oauth2Configuration())
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // 인터셉터로 요청을 안전하게 보호하는 방법 설정
+        return http
+                .csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+
+                // 예외 처리
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                )
+                .authorizeRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers("/api/mypage/**").authenticated() // 마이페이지 인증 필요
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // 관리자 페이지
+                        .requestMatchers("/crawl").permitAll() // 크롤링 관련 요청 허용
+                        .anyRequest().permitAll() // 나머지 요청은 인증 불필요
+                )
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin()) // 동일 출처에서의 프레임 옵션
+                )
                 .build();
     }
 
     @Bean
-    public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
-        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
+
 }

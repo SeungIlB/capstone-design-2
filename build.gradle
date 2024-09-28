@@ -24,17 +24,43 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// Spring Boot Starter Web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	// Spring Data JPA
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	//Webflux
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	compileOnly 'org.projectlombok:lombok'
+
+	// Spring Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// MySQL Connector
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// Lombok
 	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok'
+
+	// Swagger (API Documentation)
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+
+	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	// Redis (Optional, only if using Redis)
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+
+	// JWT (JSON Web Token)
+	implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1'  // JAXB 대신 Jakarta API 사용
+	runtimeOnly 'org.glassfish.jaxb:jaxb-runtime:3.0.1' // JAXB 런타임 추가
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.1'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.1'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.1'
+
+	implementation 'javax.activation:activation:1.1.1' // javax.activation 모듈 추가
 }
 
 tasks.named('test') {

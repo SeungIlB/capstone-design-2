@@ -1,58 +1,67 @@
 package com.medical_web_service.capstone.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.medical_web_service.capstone.dto.AuthDto;
+import com.medical_web_service.capstone.entity.Role;
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 
-import java.util.Optional;
 
-@Entity
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+@Entity(name = "users")
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
 
+    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
-
-    @Column(nullable = false)
+    private String username; // Principal
+    private String password; // Credential
     private String name;
-
-    @Column(nullable = false)
     private String nickname;
 
-    @Column(nullable = false)
-    private String email;
-
-    @Column(name = "profile_picture")
-    private String picture;
-
-    @Column(nullable = false)
-    private String gender;
-
-    @Column(nullable = false)
-    private String age;
-
+    private String phone;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
+    private Role role; // 사용자 권한
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Board> boards = new ArrayList<>();
 
-    @Builder
-    public User(String name, String nickname, String email, String picture, String gender, String age, Role role) {
-        this.name = name;
-        this.nickname = nickname;
-        this.email = email;
-        this.picture = picture;
-        this.gender = gender;
-        this.age = age;
-        this.role = role;
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<NewsData> newsDataList;
+
+    // == 생성 메서드 == //
+    public static User registerUser(AuthDto.SignupDto signupDto) {
+        User user = new User();
+
+        user.username = signupDto.getUsername();
+        user.password = signupDto.getPassword();
+        user.name = signupDto.getName();
+        user.nickname = signupDto.getNickname();
+        user.phone = signupDto.getPhone();
+        user.role = Role.USER;
+
+        return user;
+    }
+    public void addBoard(Board board) {
+        this.boards.add(board);
+        board.setUser(this); // 보드의 사용자 정보를 설정합니다.
     }
 
-    public void update(String nickname, String picture) {
-        this.nickname = nickname;
-        this.picture = picture;
-    }
+
 }
