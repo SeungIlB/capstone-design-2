@@ -42,8 +42,6 @@ public class User {
     @JsonIgnore
     private List<Board> boards = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<NewsData> newsDataList;
 
     // == 생성 메서드 == //
     public static User registerUser(AuthDto.SignupDto signupDto) {

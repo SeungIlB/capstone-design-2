@@ -17,11 +17,15 @@ import java.util.List;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/comments")
+@RequestMapping("/api/doctor")
 public class CommentController {
 
     private final CommentService commentService;
     private final UserService userService;
+
+    /**
+     * 생성 기능
+     * **/
 
     @PostMapping
     public ResponseEntity<Comment> createComment(@RequestParam Long userId, @RequestParam Long boardId,
@@ -37,12 +41,19 @@ public class CommentController {
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 
+    /**
+     * 불러오는 기능
+     * **/
+
     @GetMapping("/board/{boardId}")
     public ResponseEntity<List<Comment>> readComments(@PathVariable Long boardId) {
         List<Comment> comments = commentService.readComments(boardId);
         return new ResponseEntity<>(comments, HttpStatus.OK);
     }
 
+    /**
+     * 수정기능
+     * **/
     @PutMapping("/{commentId}")
     public ResponseEntity<Comment> updateComment(@RequestParam Long userId, @RequestParam Long boardId, @PathVariable Long commentId
             , @RequestBody CommentDto.UpdateCommentDto updateCommentDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -57,6 +68,10 @@ public class CommentController {
         Comment updatedComment = commentService.updateComment(userId, boardId, commentId, updateCommentDto);
         return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
+
+    /**
+     * 삭제 기능
+     * **/
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @RequestParam Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {

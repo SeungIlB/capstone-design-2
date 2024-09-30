@@ -29,6 +29,11 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    private static final String[] AUTH_WHITELIST = {
+            "/api/**", "/graphiql", "/graphql",
+            "/swagger-ui/**", "/api-docs", "/swagger-ui-custom.html",
+            "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html"
+    };
     @Bean
     public BCryptPasswordEncoder encoder() {
         // 비밀번호를 DB에 저장하기 전 사용할 암호화
@@ -63,7 +68,9 @@ public class SecurityConfig {
                 .authorizeRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/mypage/**").authenticated() // 마이페이지 인증 필요
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // 관리자 페이지
-                        .requestMatchers("/crawl").permitAll() // 크롤링 관련 요청 허용
+                        .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/doctor/**").hasRole("ADMIN")
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().permitAll() // 나머지 요청은 인증 불필요
                 )
                 .headers(headers -> headers
