@@ -69,7 +69,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/mypage/**").authenticated() // 마이페이지 인증 필요
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // 관리자 페이지
                         .requestMatchers("/api/doctor/**").hasRole("DOCTOR")
+                        .requestMatchers("/api/images/upload").hasRole("USER")
                         .requestMatchers("/api/doctor/**").hasRole("ADMIN")
+                        .requestMatchers("/api/images/{userId}").hasRole("ADMIN")
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .anyRequest().permitAll() // 나머지 요청은 인증 불필요
                 )

@@ -26,7 +26,6 @@ public class AuthDto {
         private String username;
         private String password;
         private String name;
-        private String nickname;
         private String phone;
 
         @Builder
@@ -40,7 +39,6 @@ public class AuthDto {
             newSignupDto.username = signupDto.getUsername();
             newSignupDto.password = encodedPassword;
             newSignupDto.name = signupDto.getName();
-            newSignupDto.nickname = signupDto.getNickname();
             newSignupDto.phone = signupDto.getPhone();
             return newSignupDto;
         }
@@ -65,19 +63,17 @@ public class AuthDto {
         private String username;
         private String password;
         private String name;
-        private String nickname;
         private String newPassword; // 새로운 비밀번호
 
         private String phone;
-        private String label;
+
 
         @Builder
-        public UpdateDto(String username, String password,String newpassword, String name, String nickname, String phone) {
+        public UpdateDto(String username, String password,String newpassword, String name, String phone) {
             this.username = username;
             this.password = password;
             this.newPassword = newpassword; // 새로운 비밀번호
             this.name = name;
-            this.nickname = nickname;
             this.phone = phone;}
     }
 }

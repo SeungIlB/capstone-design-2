@@ -39,7 +39,6 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setBoard(board);
-        comment.setWriter(user.getNickname());
         comment.setComment(createCommentDto.getComment());
         comment.setCreatedDate(LocalDateTime.now());
 
@@ -71,7 +70,7 @@ public class CommentService {
 
         comment.setComment(updateCommentDto.getComment());
         comment.setModifiedDate(LocalDateTime.now());
-        comment.setWriter(user.getNickname());
+
 
         return commentRepository.save(comment);
     }

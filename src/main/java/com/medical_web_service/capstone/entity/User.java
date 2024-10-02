@@ -13,7 +13,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 
 
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +33,6 @@ public class User {
     private String username; // Principal
     private String password; // Credential
     private String name;
-    private String nickname;
 
     private String phone;
     @Enumerated(EnumType.STRING)
@@ -43,6 +42,8 @@ public class User {
     private List<Board> boards = new ArrayList<>();
 
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
     // == 생성 메서드 == //
     public static User registerUser(AuthDto.SignupDto signupDto) {
         User user = new User();
@@ -50,7 +51,6 @@ public class User {
         user.username = signupDto.getUsername();
         user.password = signupDto.getPassword();
         user.name = signupDto.getName();
-        user.nickname = signupDto.getNickname();
         user.phone = signupDto.getPhone();
         user.role = Role.USER;
 

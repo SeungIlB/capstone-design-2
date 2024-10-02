@@ -40,26 +40,23 @@ public class UserService {
     public void updateUser(Long userId, AuthDto.UpdateDto updateDto, String encodedPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-        // 아이디 및 닉네임 중복 확인
+        // 아이디 중복 확인
         if (!user.getUsername().equals(updateDto.getUsername()) && isUsernameTaken(updateDto.getUsername())) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        if (!user.getNickname().equals(updateDto.getNickname()) && isNicknameTaken(updateDto.getNickname())) {
-            throw new IllegalArgumentException("Nickname already taken");
-        }
 
         // UpdateDto로부터 업데이트할 사용자 정보 가져오기
         String newUsername = updateDto.getUsername();
         String newPassword = encodedPassword;
         String newName = updateDto.getName();
-        String newNickname = updateDto.getNickname();
+
         String newPhone = updateDto.getPhone();
 
         user.setUsername(newUsername);
         user.setPassword(newPassword);
         user.setName(newName);
-        user.setNickname(newNickname);
+
         user.setPhone(newPhone);
         userRepository.save(user);
     }
@@ -113,7 +110,24 @@ public class UserService {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    public boolean isNicknameTaken(String nickname) {
-        return userRepository.findByNickname(nickname).isPresent();
+    @Transactional
+    public String modifyName(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        // 사용자의 이름 가져오기
+        String originalName = user.getName();
+
+        // 이름이 null이 아니고 길이가 1 이상인 경우만 처리
+        if (originalName != null && originalName.length() > 1) {
+            // 첫 글자를 제외한 나머지 글자를 "xx" 또는 "oo"로 바꾸기
+            String modifiedName = originalName.charAt(0) + "X".repeat(originalName.length() - 1);
+            return modifiedName;
+        } else if (originalName != null && originalName.length() == 1) {
+            // 이름이 한 글자일 경우 그대로 반환
+            return originalName;
+        } else {
+            throw new IllegalArgumentException("Name is invalid or empty for user with id: " + userId);
+        }
     }
 }

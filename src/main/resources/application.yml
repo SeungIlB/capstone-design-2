@@ -66,5 +66,7 @@ jwt:
   secret: c3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwK
   access-token-validity-in-seconds: 86400000 # 24??
   refresh-token-validity-in-seconds: 604800000 # 7?
+file:
+  upload-dir: "C:/Users/82109/capstone-design-2/src/main/resources/static/uploads"
 
 

@@ -27,6 +27,8 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
 
     @Transactional
     public Page<Board> readAllBoard(Pageable pageable) {
@@ -47,8 +49,8 @@ public class BoardService {
         Board board = new Board();
         board.setTitle(boardDto.getTitle());
         board.setContent(boardDto.getContent());
-        board.setWriter(user.getNickname());
         board.setPostedTime(LocalDateTime.now());
+        board.setWriter(userService.modifyName(userId));
 
         // 보드를 사용자에게 추가합니다.
         user.addBoard(board);
@@ -71,7 +73,6 @@ public class BoardService {
 
         board.setTitle(boardDto.getTitle());
         board.setContent(boardDto.getContent());
-        board.setWriter(user.getNickname());
         board.setUpdatedTime(LocalDateTime.now());
 
         boardRepository.save(board);
