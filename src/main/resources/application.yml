@@ -1,6 +1,7 @@
 server:
   address: localhost
   port: 8080
+
 springdoc:
   swagger-ui:
     # swagger-ui 접근 경로. default 값은 /swagger-ui.html이다.
@@ -42,7 +43,10 @@ springdoc:
   # 해당 패턴에 매칭되는 controller만 swagger-ui에 노출한다.
   paths-to-match:
     - /api/**
+
 spring:
+  main:
+    allow-bean-definition-overriding: true
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -62,11 +66,20 @@ spring:
     redis:
       host: localhost
       port: 6379
+
 jwt:
   secret: c3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwtc3ByaW5nYm9vdC1qd3QtdHV0b3JpYWwK
-  access-token-validity-in-seconds: 86400000 # 24??
-  refresh-token-validity-in-seconds: 604800000 # 7?
+  access-token-validity-in-seconds: 86400000 # 24시간
+  refresh-token-validity-in-seconds: 604800000 # 7일
+
 file:
   upload-dir: "C:/Users/82109/capstone-design-2/src/main/resources/static/uploads"
+
+openai:
+    secret-key: "${OPENAI_SECRET_KEY}"
+    model: "https://api.openai.com/v1/models"
+    model-list: "https://api.openai.com/v1/models/"
+    legacy-prompt: "https://api.openai.com/v1/completions"
+    prompt: "https://api.openai.com/v1/chat/completions"
 
 
