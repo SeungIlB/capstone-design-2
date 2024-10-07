@@ -77,9 +77,10 @@ file:
 
 openai:
     secret-key: "${OPENAI_SECRET_KEY}"
-    model: "https://api.openai.com/v1/models"
-    model-list: "https://api.openai.com/v1/models/"
-    legacy-prompt: "https://api.openai.com/v1/completions"
-    prompt: "https://api.openai.com/v1/chat/completions"
+    url:
+      model: "https://api.openai.com/v1/models"
+      model-list: "https://api.openai.com/v1/models/"
+      legacy-prompt: "https://api.openai.com/v1/completions"
+      prompt: "https://api.openai.com/v1/chat/completions"
 
 
