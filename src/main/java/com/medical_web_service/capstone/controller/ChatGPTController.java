@@ -23,6 +23,7 @@ import java.util.Map;
  * @since : 12/29/23
  */
 @Slf4j
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping(value = "/api/v1/chatGpt")
 public class ChatGPTController {
