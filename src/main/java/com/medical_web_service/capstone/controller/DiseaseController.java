@@ -3,12 +3,14 @@ package com.medical_web_service.capstone.controller;
 import com.medical_web_service.capstone.dto.DiseaseInfo;
 import com.medical_web_service.capstone.service.DiseaseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 public class DiseaseController {
 
