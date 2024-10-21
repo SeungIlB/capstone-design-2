@@ -39,6 +39,7 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setUser(user);
         comment.setBoard(board);
+        comment.setWriter(user.getName());
         comment.setComment(createCommentDto.getComment());
         comment.setCreatedDate(LocalDateTime.now());
 
