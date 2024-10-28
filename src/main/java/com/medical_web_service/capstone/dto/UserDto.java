@@ -14,31 +14,28 @@ import org.springframework.data.annotation.Id;
 public class UserDto {
 
     private Long id;
-
     private String name;
-
     private String nickname;
-
     private String email;
-
     private String picture;
-
+    private String age;
     private String gender;
-
-    private String age; // 연령대
-
+    private String diseaseHistory;
+    private String searchingDiseaseHistory;
     private Role role;
 
     // 생성자
 
-    public UserDto(Long id, String name, String nickname, String email, String picture, String gender, String age, Role role) {
+    public UserDto(Long id, String name, String nickname, String email, String picture, String age, String gender, String diseaseHistory, String searchingDiseaseHistory, Role role) {
         this.id = id;
         this.name = name;
         this.nickname = nickname;
         this.email = email;
         this.picture = picture;
-        this.gender = gender;
         this.age = age;
+        this.gender = gender;
+        this.diseaseHistory = diseaseHistory;
+        this.searchingDiseaseHistory = searchingDiseaseHistory;
         this.role = role;
     }
 }

@@ -27,6 +27,9 @@ public class AuthDto {
         private String password;
         private String name;
         private String phone;
+        private String age;
+        private String gender;
+
 
         @Builder
         public SignupDto(String username, String password) {
@@ -40,6 +43,9 @@ public class AuthDto {
             newSignupDto.password = encodedPassword;
             newSignupDto.name = signupDto.getName();
             newSignupDto.phone = signupDto.getPhone();
+            newSignupDto.age = signupDto.getAge();
+            newSignupDto.gender = signupDto.getGender();
+
             return newSignupDto;
         }
     }

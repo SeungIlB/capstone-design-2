@@ -33,7 +33,10 @@ public class User {
     private String username; // Principal
     private String password; // Credential
     private String name;
-
+    private String age;
+    private String gender;
+    private String diseaseHistory;
+    private String searchingDiseaseHistory;
     private String phone;
     @Enumerated(EnumType.STRING)
     private Role role; // 사용자 권한
@@ -51,6 +54,8 @@ public class User {
         user.username = signupDto.getUsername();
         user.password = signupDto.getPassword();
         user.name = signupDto.getName();
+        user.age = signupDto.getAge();
+        user.gender = signupDto.getGender();
         user.phone = signupDto.getPhone();
         user.role = Role.USER;
 

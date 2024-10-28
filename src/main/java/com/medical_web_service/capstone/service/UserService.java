@@ -50,9 +50,7 @@ public class UserService {
         String newUsername = updateDto.getUsername();
         String newPassword = encodedPassword;
         String newName = updateDto.getName();
-
         String newPhone = updateDto.getPhone();
-
         user.setUsername(newUsername);
         user.setPassword(newPassword);
         user.setName(newName);
