@@ -30,23 +30,36 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
     private String username; // Principal
+
     private String password; // Credential
+
     private String name;
+
     private String age;
+
     private String gender;
-    private String diseaseHistory;
-    private String searchingDiseaseHistory;
+
     private String phone;
+
     @Enumerated(EnumType.STRING)
     private Role role; // 사용자 권한
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Board> boards = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<DiseaseHistory> diseaseHistory;
+
+    @OneToMany(mappedBy = "user")
+    private List<SearchingDiseaseHistory> searchingDiseaseHistories;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
     // == 생성 메서드 == //
     public static User registerUser(AuthDto.SignupDto signupDto) {
         User user = new User();
@@ -61,10 +74,9 @@ public class User {
 
         return user;
     }
+
     public void addBoard(Board board) {
         this.boards.add(board);
         board.setUser(this); // 보드의 사용자 정보를 설정합니다.
     }
-
-
 }
