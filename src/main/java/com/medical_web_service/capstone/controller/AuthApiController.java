@@ -162,4 +162,9 @@ public class AuthApiController {
         // 사용자 정보가 존재하는 경우 해당 정보를 반환합니다.
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/user/{userId}/isDoctor")
+    public boolean isDoctor(@PathVariable Long userId) {
+        return userService.userIsDoctor(userId);
+    }
 }

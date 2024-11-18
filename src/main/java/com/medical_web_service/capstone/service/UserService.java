@@ -128,4 +128,13 @@ public class UserService {
             throw new IllegalArgumentException("Name is invalid or empty for user with id: " + userId);
         }
     }
+
+    @Transactional
+    public boolean userIsDoctor(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        String userRole = String.valueOf(user.getRole());
+
+        return userRole.equals("DOCTOR") || userRole.equals("ADMIN");
+    }
 }
