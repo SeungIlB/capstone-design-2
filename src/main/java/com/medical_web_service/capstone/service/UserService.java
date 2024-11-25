@@ -137,4 +137,12 @@ public class UserService {
 
         return userRole.equals("DOCTOR") || userRole.equals("ADMIN");
     }
+
+//    @Transactional
+//    public Long findUserIdByUserName(String userName){
+//        User user = userRepository.findByUsername(userName)
+//                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userName));
+//
+//        return user.getId();
+//    }
 }
