@@ -27,10 +27,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*") // 모든 도메인에서의 요청 허용
+                .allowedOrigins("http://lcoalhost:3000") // 3000 포트
                 .allowedMethods("*") // 모든 HTTP 메소드 허용
                 .allowedHeaders("*"); // 모든 헤더 허용
     }
-
 }
 
