@@ -12,8 +12,9 @@ import java.util.List;
  * @since : 1/18/24
  */
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class ChatCompletionDto {
 
     // 사용할 모델

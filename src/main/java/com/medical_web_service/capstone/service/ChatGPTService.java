@@ -26,4 +26,9 @@ public interface ChatGPTService {
     Map<String, Object> legacyPrompt(CompletionDto completionDto);
 
     Map<String, Object> prompt(ChatCompletionDto chatCompletionDto);
+
+    public Map<String, Object> recommendDiseases(String symptomDescription);
+
+    public Map<String, Object> legacyDiseasePrompt(String symptomDescription);
+
 }

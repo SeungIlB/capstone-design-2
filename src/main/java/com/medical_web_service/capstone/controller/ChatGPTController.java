@@ -80,4 +80,17 @@ public class ChatGPTController {
         Map<String, Object> result = chatGPTService.prompt(chatCompletionDto);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
+    /**
+     * [API] 사용자가 제공한 증상에 맞는 질병을 추천합니다.
+     *
+     * @param symptomDescription 증상 설명
+     * @return
+     */
+    @PostMapping("/diseases")
+    public ResponseEntity<Map<String, Object>> recommendDiseases(@RequestParam(name = "symptomDescription") String symptomDescription) {
+        log.debug("param :: " + symptomDescription);
+        Map<String, Object> result = chatGPTService.recommendDiseases(symptomDescription);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
 }

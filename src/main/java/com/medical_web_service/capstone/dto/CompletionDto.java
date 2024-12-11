@@ -9,8 +9,9 @@ import lombok.*;
  * @since : 12/29/23
  */
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor
 public class CompletionDto {
 
     // 사용할 모델

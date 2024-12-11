@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.medical_web_service.capstone.config.ChatGPTConfig;
 import com.medical_web_service.capstone.dto.ChatCompletionDto;
+import com.medical_web_service.capstone.dto.ChatRequestMsgDto;
 import com.medical_web_service.capstone.dto.CompletionDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -185,5 +186,78 @@ public class ChatGPTServiceImpl implements ChatGPTService {
             log.debug("RuntimeException :: " + e.getMessage());
         }
         return resultMap;
+    }
+    @Override
+    public Map<String, Object> recommendDiseases(String symptomDescription) {
+        log.debug("[+] 증상에 맞는 질병을 추천합니다.");
+
+        // ChatGPT에 전달할 메시지 생성
+        ChatCompletionDto chatCompletionDto = new ChatCompletionDto();
+        chatCompletionDto.setModel("gpt-3.5-turbo");  // 사용하려는 모델 선택
+
+        // 시스템 메시지: GPT에게 역할을 설명
+        ChatRequestMsgDto systemMessage = new ChatRequestMsgDto();
+        systemMessage.setRole("system");
+        systemMessage.setContent("당신은 경험이 풍부한 의사입니다. 사용자의 증상에 대해 정확하고 신뢰할 수 있는 정보를 제공해야 합니다. 가능한 질병과 함께 예방 방법, 치료 방법도 제공해야 합니다. 증상이 심각할 경우 병원에 가야 한다고 유도해 주세요.");
+
+        // 사용자 메시지: 실제 증상 입력
+        ChatRequestMsgDto userMessage = new ChatRequestMsgDto();
+        userMessage.setRole("user");
+        userMessage.setContent("사용자가 배가 아프다고 합니다. 증상에 기초하여 가능한 질병을 제시하고, 예방 방법과 치료 방법도 제공해 주세요. 증상: " + symptomDescription);
+
+        // 메시지 리스트 생성
+        List<ChatRequestMsgDto> messages = List.of(systemMessage, userMessage);
+
+        // 모델과 메시지 설정
+        chatCompletionDto.setMessages(messages);
+
+        // ChatGPT API 호출
+        Map<String, Object> response = prompt(chatCompletionDto);
+
+        // 응답 처리 (예: 병원 방문 유도 메시지 추가)
+        Map<String, Object> result = processResponse(response);
+
+        return result;
+    }
+
+    /**
+     * 응답을 처리하여, 병원 방문을 유도하는 메시지를 추가합니다.
+     */
+    private Map<String, Object> processResponse(Map<String, Object> response) {
+        Map<String, Object> result = new HashMap<>();
+
+        // 예시 응답 처리
+        if (response != null) {
+            // 질병, 예방, 치료, 병원 유도 정보를 처리
+            String diseaseInfo = (String) response.get("disease_info"); // 가정된 필드
+            String prevention = (String) response.get("prevention"); // 가정된 필드
+            String treatment = (String) response.get("treatment"); // 가정된 필드
+
+            // 병원 방문 유도
+            String hospitalAdvice = "증상이 심각하거나 지속되면 병원에 방문해 주세요. 전문가의 진단을 받는 것이 중요합니다.";
+
+            // 결과 저장
+            result.put("disease_info", diseaseInfo);
+            result.put("prevention", prevention);
+            result.put("treatment", treatment);
+            result.put("hospital_advice", hospitalAdvice);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> legacyDiseasePrompt(String symptomDescription) {
+        log.debug("[+] legacy 프롬프트를 사용하여 증상에 맞는 질병을 추천합니다.");
+
+        // CompletionDto 객체 생성
+        CompletionDto completionDto = new CompletionDto();
+        completionDto.setPrompt("사용자가 배가 아프다고 합니다. 증상에 기초하여 가능한 질병을 제시해 주세요. 증상: " + symptomDescription);
+        completionDto.setMax_tokens(150);  // 응답 길이 제한
+
+        // legacyPrompt 호출
+        Map<String, Object> response = legacyPrompt(completionDto);
+
+        return response;
     }
 }

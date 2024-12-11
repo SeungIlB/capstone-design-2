@@ -10,9 +10,9 @@ import lombok.*;
  * @since : 1/18/24
  */
 @Getter
+@Setter
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-
+@RequiredArgsConstructor
 public class ChatRequestMsgDto {
 
     private String role;
