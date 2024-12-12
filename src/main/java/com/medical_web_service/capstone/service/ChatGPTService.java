@@ -30,5 +30,6 @@ public interface ChatGPTService {
     public Map<String, Object> recommendDiseases(String symptomDescription);
 
     public Map<String, Object> legacyDiseasePrompt(String symptomDescription);
+    public Map<String, Object> generateHealthRecommendations(Long userId);
 
 }

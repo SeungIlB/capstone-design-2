@@ -93,4 +93,26 @@ public class ChatGPTController {
         Map<String, Object> result = chatGPTService.recommendDiseases(symptomDescription);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+    /**
+     * 사용자 ID를 기반으로 건강 추천 정보를 반환
+     * @param userId 사용자 ID
+     * @return 건강 추천 결과
+     */
+    @GetMapping("/recommendations/{userId}")
+    public ResponseEntity<Map<String, Object>> getHealthRecommendations(@PathVariable Long userId) {
+        try {
+            log.debug("사용자 ID로 건강 추천을 요청합니다: {}", userId);
+
+            // 서비스 호출하여 결과 생성
+            Map<String, Object> recommendations = chatGPTService.generateHealthRecommendations(userId);
+
+            return ResponseEntity.ok(recommendations);
+        } catch (IllegalArgumentException ex) {
+            log.error("유효하지 않은 사용자 요청: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            log.error("서버 오류 발생: {}", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "서버 오류가 발생했습니다. 다시 시도해 주세요."));
+        }
+    }
 }

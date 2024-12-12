@@ -9,6 +9,9 @@ import com.medical_web_service.capstone.config.ChatGPTConfig;
 import com.medical_web_service.capstone.dto.ChatCompletionDto;
 import com.medical_web_service.capstone.dto.ChatRequestMsgDto;
 import com.medical_web_service.capstone.dto.CompletionDto;
+import com.medical_web_service.capstone.entity.DiseaseHistory;
+import com.medical_web_service.capstone.entity.User;
+import com.medical_web_service.capstone.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,9 +20,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * ChatGPT Service 구현체
@@ -34,8 +40,9 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
     private final ChatGPTConfig chatGPTConfig;
 
-    public ChatGPTServiceImpl(ChatGPTConfig chatGPTConfig) {
+    public ChatGPTServiceImpl(ChatGPTConfig chatGPTConfig, UserRepository userRepository) {
         this.chatGPTConfig = chatGPTConfig;
+        this.userRepository = userRepository;
     }
 
     @Value("${openai.url.model}")
@@ -50,6 +57,7 @@ public class ChatGPTServiceImpl implements ChatGPTService {
     @Value("${openai.url.legacy-prompt}")
     private String legacyPromptUrl;
 
+    private final UserRepository userRepository;
     /**
      * 사용 가능한 모델 리스트를 조회하는 비즈니스 로직
      *
@@ -260,4 +268,79 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         return response;
     }
+
+    /**
+     * ChatGPT 프롬프트를 생성하여 사용자의 질병치료 방법 및 권장사항을 추천
+     * @param userId 사용자의 ID
+     * @return 추천 결과 (질병 치료 방법, 예방책, 운동 권장사항 등)
+     */
+    @Override
+    public Map<String, Object> generateHealthRecommendations(Long userId) {
+        log.debug("[+] 건강 추천을 생성합니다. 사용자 ID: {}", userId);
+
+        // userId를 기반으로 User 객체를 조회합니다.
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // User 객체에서 생년월일을 가져와 나이 계산
+        String birthDateString = user.getAge(); // YYYY-MM-DD 형식
+        LocalDate birthDate = LocalDate.parse(birthDateString);
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+
+        String gender = user.getGender();
+
+        // User 객체에서 질병 이력을 가져옵니다.
+        List<DiseaseHistory> diseaseHistories = user.getDiseaseHistory();
+        String medicalHistory = diseaseHistories.stream()
+                .map(DiseaseHistory::getDiseaseName) // 질병 이름만 추출
+                .collect(Collectors.joining(", ")); // 쉼표로 연결
+
+        log.debug("사용자 정보 - 나이: {}, 성별: {}, 병력: {}", age, gender, medicalHistory);
+
+        // ChatGPT에 전달할 메시지 생성
+        ChatCompletionDto chatCompletionDto = new ChatCompletionDto();
+        chatCompletionDto.setModel("gpt-3.5-turbo");  // 사용하려는 모델 선택
+
+        // 시스템 메시지: GPT 역할 설명
+        ChatRequestMsgDto systemMessage = new ChatRequestMsgDto();
+        systemMessage.setRole("system");
+        systemMessage.setContent("당신은 경험이 풍부한 의사입니다. 사용자의 나이, 성별, 병력을 바탕으로 적절한 권장사항을 제공합니다. 식단, 운동, 예방 방법 및 증상이 심각할 경우 병원 방문 필요성을 포함하여 정보를 제공합니다.");
+
+        // 사용자 메시지: 입력 데이터 기반 프롬프트
+        ChatRequestMsgDto userMessage = new ChatRequestMsgDto();
+        userMessage.setRole("user");
+        userMessage.setContent(String.format("사용자의 나이는 %d세이고 성별은 %s입니다. 병력: %s. 이에 맞는 적절한 질병 치료 방법과 권장사항을 알려주세요. 예를 들어, 피해야 할 음식, 권장 운동, 예방 방법 등을 제시해 주세요.", age, gender, medicalHistory));
+
+        // 메시지 리스트 생성
+        List<ChatRequestMsgDto> messages = List.of(systemMessage, userMessage);
+        chatCompletionDto.setMessages(messages);
+
+        // ChatGPT API 호출
+        Map<String, Object> response = prompt(chatCompletionDto);
+
+        // 응답 처리
+        return processHealthResponse(response);
+    }
+
+    /**
+     * ChatGPT 응답 처리 및 결과 구성
+     * @param response ChatGPT API 응답
+     * @return 권장사항 결과 (질병 정보, 식단, 운동 등 포함)
+     */
+    private Map<String, Object> processHealthResponse(Map<String, Object> response) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (response != null) {
+            // 예시 응답 처리: 응답에서 필요한 데이터를 추출
+            String recommendations = (String) response.get("choices[0].message.content");
+
+            // 결과 저장
+            result.put("recommendations", recommendations);
+            result.put("note", "위 권장사항은 참고용입니다. 증상이 지속되거나 심각할 경우 반드시 전문의를 방문하세요.");
+        } else {
+            result.put("error", "응답이 비어 있습니다. 다시 시도해 주세요.");
+        }
+
+        return result;
+    }
+
 }
