@@ -279,7 +279,8 @@ public class ChatGPTServiceImpl implements ChatGPTService {
         log.debug("[+] 건강 추천을 생성합니다. 사용자 ID: {}", userId);
 
         // userId를 기반으로 User 객체를 조회합니다.
-        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // User 객체에서 생년월일을 가져와 나이 계산
         String birthDateString = user.getAge(); // YYYY-MM-DD 형식
@@ -290,9 +291,15 @@ public class ChatGPTServiceImpl implements ChatGPTService {
 
         // User 객체에서 질병 이력을 가져옵니다.
         List<DiseaseHistory> diseaseHistories = user.getDiseaseHistory();
-        String medicalHistory = diseaseHistories.stream()
-                .map(DiseaseHistory::getDiseaseName) // 질병 이름만 추출
-                .collect(Collectors.joining(", ")); // 쉼표로 연결
+        String medicalHistory;
+
+        if (diseaseHistories == null || diseaseHistories.isEmpty()) {
+            medicalHistory = "없음";
+        } else {
+            medicalHistory = diseaseHistories.stream()
+                    .map(DiseaseHistory::getDiseaseName) // 질병 이름만 추출
+                    .collect(Collectors.joining(", ")); // 쉼표로 연결
+        }
 
         log.debug("사용자 정보 - 나이: {}, 성별: {}, 병력: {}", age, gender, medicalHistory);
 
